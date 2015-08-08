@@ -1,0 +1,6 @@
+[submodule "libs/ChibiOS-RT"]
+	path = libs/ChibiOS-RT
+	url = https://github.com/mtl/ChibiOS-RT.git
+[submodule "libs/lufa"]
+	path = libs/lufa
+	url = https://github.com/mtl/lufa.git
