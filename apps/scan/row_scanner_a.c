@@ -18,6 +18,7 @@
 // Static function prototypes:
 
 static void get_pin( ioportid_t *, uint_fast8_t *, IOBus [], uint8_t, bool );
+static void get_pins_address( IOBus (**)[], IOBus (* const *)[], bool );
 static void scan_row( RkASMatrixScanner *, uint8_t, uint8_t[] );
 static void select_row( RkASMatrixScanner *, uint8_t );
 static void unselect_row( RkASMatrixScanner *, uint8_t );
@@ -47,42 +48,57 @@ static void unselect_row( RkASMatrixScanner *, uint8_t );
  * @param[out] offset the bit position of the pin on the I/O port
  * @param[in] pins the array of matrix pin definitions
  * @param[in] number the row or column number
- * @param[in] use_pgm whether or not to read from PROGMEM
+ * @param[in] use_pgm whether or not to read from progmem
  */
 static void get_pin(
     ioportid_t * portid, uint_fast8_t * offset,
     IOBus pins[], uint8_t number, bool use_pgm
 ) {
-//  if ( use_pgm ) {
-//
-//    // Get the pin information from progmem:
-//    IOBus pin;
-//    memcpy_PF(
-//      &pin,
-//      &pins[ number ],
-//      sizeof( IOBus )
-//    );
-//
-//    // Copy portid from progmem:
-//    memcpy_PF(
-//      portid,
-//      &pin.portid,
-//      sizeof( ioportid_t )
-//    );
-//
-////    ioportid_t * pgm_portid = &pin->portid;
-////    ioportid_t * pid = portid;
-////    for ( int i = 0; i < sizeof( ioportid_t ); i++ ) {
-////      *pid++ = pgm_read_byte( pgm_portid + i );
-////    }
-//
-//    *offset = pin.offset;
-//
-//  } else {
-//    *portid = pins[ number ].portid;
-//    *offset = pins[ number ].offset;
-//  }
+
+  if ( use_pgm ) {
+
+    // Get the pin information from progmem:
+    IOBus pin;
+    memcpy_P(
+      &pin,
+      &pins[ number ],
+      sizeof( IOBus )
+    );
+
+    *portid = pin.portid;
+    *offset = pin.offset;
+
+  } else {
+
+    *portid = pins[ number ].portid;
+    *offset = pins[ number ].offset;
+  }
 }
+
+
+/**
+ * @brief Get the address of a pin configuration array.
+ *
+ * @param[out] dest where to store the array's address
+ * @param[in] src where to retrieve the array's address
+ * @param[in] use_pgm whether or not to read from progmem
+ */
+static void get_pins_address(
+    IOBus (**dest)[],
+    IOBus (* const *src)[],
+    bool use_pgm
+) {
+
+  if ( use_pgm ) {
+
+    *dest = (IOBus (*)[]) pgm_read_word_near( src );
+
+  } else {
+
+    *dest = *src;
+  }
+}
+
 
 /**
  * @brief Initialize the scanner.
@@ -91,39 +107,32 @@ static void get_pin(
  */
 void rkas_init_a( RkASMatrixScanner * matrix_scanner ) {
 
+  // Tell the matrix scanner how to scan a row:
   matrix_scanner->scan_row = &scan_row;
 
-  // To use PORTF, disable JTAG by writing JTD bit twice within four cycles:
-  /*MCUCR |= (1<<JTD);*/
-  /*MCUCR |= (1<<JTD);*/
-    
-//  /* Initialize rows: */
-//  RkASMatrix * matrix = matrix_scanner->matrix;
-//  uint8_t num_rows = matrix->num_rows;
-//  for ( uint8_t row = 0; row < num_rows; row++ ) {
-//    unselect_row( matrix_scanner, row );
-//  }
-//
-//  /* Initialize columns: */
-//  IOBus (*col_pins)[] = matrix->col_pins;
-//  uint8_t num_cols = matrix->num_cols;
-//  uint_fast8_t offset;
-//  ioportid_t portid;
-//  bool use_pgm = matrix->progmem;
-//  for ( uint8_t col = 0; col < num_cols; col++ ) {
-//
-//    get_pin( &portid, &offset, *col_pins, col, use_pgm );
-//    palSetPadMode( portid, offset, PAL_MODE_INPUT_PULLUP );
-//  }
+  // Get matrix geometry:
+  uint8_t num_rows, num_cols;
+  bool use_pgm = matrix_scanner->matrix_in_progmem;
+  const RkASMatrix * matrix = matrix_scanner->matrix;
+  rkas_get_geometry( matrix, use_pgm, &num_rows, &num_cols );
 
-/*
-  // initialize matrix state: all keys off
-  for ( uint8_t i=0; i < MATRIX_ROWS; i++ ) {
-    matrix[ i ] = (matrix_row_t) 0;
-    matrix_debouncing[ i ] = (matrix_row_t) 0;
+  // Initialize rows:
+  for ( uint8_t row = 0; row < num_rows; row++ ) {
+    unselect_row( matrix_scanner, row );
   }
-*/
 
+  // Initialize columns:
+
+  IOBus (*col_pins)[] = NULL;
+  get_pins_address( &col_pins, &matrix->col_pins, use_pgm );
+
+  uint_fast8_t offset;
+  ioportid_t portid;
+  for ( uint8_t col = 0; col < num_cols; col++ ) {
+
+    get_pin( &portid, &offset, *col_pins, col, use_pgm );
+    palSetPadMode( portid, offset, PAL_MODE_INPUT_PULLUP );
+  }
 }
 
 
@@ -138,14 +147,18 @@ void rkas_init_a( RkASMatrixScanner * matrix_scanner ) {
  */
 static void select_row( RkASMatrixScanner * matrix_scanner, uint8_t row ) {
 
-//  RkASMatrix * matrix = matrix_scanner->matrix;
-//  uint_fast8_t offset;
-//  ioportid_t portid;
-//
-//  get_pin( &portid, &offset, *matrix->row_pins, row, matrix->progmem );
-//  palSetPadMode( portid, offset, PAL_MODE_OUTPUT_PUSHPULL );
-//  palWritePad( portid, offset, PAL_LOW );
+  IOBus (*row_pins)[] = NULL;
+  bool use_pgm = matrix_scanner->matrix_in_progmem;
+  get_pins_address( &row_pins, &matrix_scanner->matrix->row_pins, use_pgm );
+
+  uint_fast8_t offset;
+  ioportid_t portid;
+  get_pin( &portid, &offset, *row_pins, row, use_pgm );
+
+  palSetPadMode( portid, offset, PAL_MODE_OUTPUT_PUSHPULL );
+  palWritePad( portid, offset, PAL_LOW );
 }
+
 
 /**
  * @brief Get a row of matrix column data.
@@ -161,49 +174,38 @@ static void select_row( RkASMatrixScanner * matrix_scanner, uint8_t row ) {
  */
 static void scan_row( RkASMatrixScanner * matrix_scanner, uint8_t row, uint8_t columns[] ) {
 
-//  RkASMatrix * matrix = matrix_scanner->matrix;
-//  uint_fast8_t offset;
-//  ioportid_t portid;
-//  bool use_pgm = matrix->progmem;
-//
-//  select_row( matrix_scanner, row );
-//  _delay_us( 30 );  // Wait for signals to stabilize.
-//
-//  uint8_t col_bit = 0;
-//  uint8_t col_byte = 0;
-//  uint8_t col_byte_offset = 0;
-//
-//  IOBus (*col_pins)[] = matrix->col_pins;
-//  uint8_t num_cols = matrix->num_cols;
-//  for ( uint8_t col = 0; col < num_cols; col++ ) {
-//
-//    if ( col_bit > 7 ) {
-//      columns[ col_byte_offset++ ] = col_byte;
-//      col_bit = 0;
-//      col_byte = 0;
-//    }
-//
-//    get_pin( &portid, &offset, *col_pins, col, use_pgm );
-//    col_byte |= palReadPad( portid, offset ) << col_bit++;
-//  }
-//
-//  unselect_row( matrix_scanner, row );
+  select_row( matrix_scanner, row );
+  _delay_us( 30 );  // Wait for signals to stabilize.
+
+  uint8_t num_rows, num_cols;
+  const RkASMatrix * matrix = matrix_scanner->matrix;
+  bool use_pgm = matrix_scanner->matrix_in_progmem;
+  rkas_get_geometry( matrix, use_pgm, &num_rows, &num_cols );
+
+  IOBus (*col_pins)[] = NULL;
+  get_pins_address( &col_pins, &matrix->col_pins, use_pgm );
+
+  uint8_t col_bit = 0;
+  uint8_t col_byte = 0;
+  uint8_t col_byte_offset = 0;
+  uint_fast8_t offset;
+  ioportid_t portid;
+
+  for ( uint8_t col = 0; col < num_cols; col++ ) {
+
+    if ( col_bit > 7 ) {
+      columns[ col_byte_offset++ ] = col_byte;
+      col_bit = 0;
+      col_byte = 0;
+    }
+
+    get_pin( &portid, &offset, *col_pins, col, use_pgm );
+    col_byte |= palReadPad( portid, offset ) << col_bit++;
+  }
+
+  unselect_row( matrix_scanner, row );
 }
 
-/**
- * @brief Get the scanner interface.
- *
- * @param[out] matrix_scanner the matrix scanner
- * @param[in] matrix the key matrix
- */
-//void scanner_a( RkASMatrixScanner * matrix_scanner, RkASMatrix * matrix ) {
-//
-//  matrix_scanner->matrix = matrix;
-//  /*matrix_scanner->print = &print;*/
-//  /*matrix_scanner->scan = &scan;*/
-//
-//  init( matrix_scanner );
-//}
 
 /**
  * @brief   Unselect a row (to initialize or after scanning).
@@ -216,12 +218,15 @@ static void scan_row( RkASMatrixScanner * matrix_scanner, uint8_t row, uint8_t c
  */
 static void unselect_row( RkASMatrixScanner * matrix_scanner, uint8_t row ) {
 
-//  RkASMatrix * matrix = matrix_scanner->matrix;
-//  uint_fast8_t offset;
-//  ioportid_t portid;
-//
-//  get_pin( &portid, &offset, *matrix->row_pins, row, matrix->progmem );
-//  palSetPadMode( portid, offset, PAL_MODE_INPUT );
+  IOBus (*row_pins)[] = NULL;
+  bool use_pgm = matrix_scanner->matrix_in_progmem;
+  get_pins_address( &row_pins, &matrix_scanner->matrix->row_pins, use_pgm );
+
+  uint_fast8_t offset;
+  ioportid_t portid;
+  get_pin( &portid, &offset, *row_pins, row, use_pgm );
+
+  palSetPadMode( portid, offset, PAL_MODE_INPUT );
 }
 
 

@@ -17,6 +17,11 @@
  */
 void rkas_init( RkASMatrixScanner * self ) {
 
+  // To use PORTF, disable JTAG by writing JTD bit twice within four cycles:
+  /*MCUCR |= (1<<JTD);*/
+  /*MCUCR |= (1<<JTD);*/
+
+
   // Initialize the matrix state arrays:
 
   uint16_t matrix_state_size = rkas_get_state_size(
