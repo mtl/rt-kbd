@@ -99,12 +99,37 @@ void rkas_scan( RkASMatrixScanner * self ) {
   if (
     memcmp( *self->state.bouncing, *self->state.latest, state_size )
   ) {
-    // Bounce detected..
+    // Bounce detected.
+
+    // Record time of bounce:
+    chSysLock();
+    self->last_bounce_time = chVTGetSystemTimeX();
+    chSysUnlock();
+
+    // Record what bounced:
     memcpy( *self->state.bouncing, *self->state.latest, state_size );
-    // reset timer/counter..
+
   } else {
-    // check time/count
-    // if stable long enough, generate events
+    // Current state is the same as last bounce.
+
+    // Check if settle time has elapsed:
+    chSysLock();
+    systime_t elapsed = chVTTimeElapsedSinceX( self->last_bounce_time );
+    chSysUnlock();
+
+    if ( elapsed >= MS2ST( RKAS_DEBOUNCE_MS ) ) {
+      // Matrix has been stable long enough.
+
+      // See if anything changed from last reported state:
+      if (
+        memcmp( *self->state.reported, *self->state.latest, state_size )
+      ) {
+        // Generate events.
+
+        // Record matrix state as reported:
+        memcpy( *self->state.reported, *self->state.latest, state_size );
+      }
+    }
   }
 }
 

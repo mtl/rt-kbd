@@ -9,11 +9,15 @@
 //---------------------------------------------------------------------------
 // Includes.
 
+#include "nil.h"
+
 #include "apps/scan/matrix.h"
 
 
 //---------------------------------------------------------------------------
 // Macros.
+
+#define RKAS_DEBOUNCE_MS 20
 
 /**
  * @brief   Static working area allocation for keyboard matrix scanner.
@@ -88,6 +92,11 @@
  * @brief   Keyboard matrix scanner data structure.
  */
 typedef struct rk_as_matrix_scanner {
+
+  /**
+   * @brief System time of last detected bounce.
+   */
+  systime_t                 last_bounce_time;
 
   /**
    * @brief Keyboard matrix definition.
