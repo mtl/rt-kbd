@@ -7,7 +7,14 @@
 #define __RK_MX13_MATRIX_DEF__
 
 
+//---------------------------------------------------------------------------
+// Includes.
+
 #include "apps/scan/matrix.h"
+
+
+//---------------------------------------------------------------------------
+// Macros.
 
 #define KBD_MATRIX_NUM_ROWS    5
 #define KBD_MATRIX_NUM_COLS    19
@@ -47,11 +54,15 @@
   COL_10, COL_11, COL_12, COL_13, COL_14, \
   COL_15, COL_16, COL_17, COL_18
 
-extern const RkASMatrixLayout matrix_layout;
-extern const RkASMatrixLayout matrix_layout_P;
+
+//---------------------------------------------------------------------------
+// Externs.
+
+extern const RkASMatrix matrix;
+extern const RkASMatrix matrix_P;
 
 
-/***************************************************************************/
+//===========================================================================
 
 #endif
 

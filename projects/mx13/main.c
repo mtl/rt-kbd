@@ -1,3 +1,9 @@
+/****************************************************************************
+ *
+ *  Main
+ *
+ ***************************************************************************/
+
 /*
     ChibiOS - Copyright (C) 2006..2015 Giovanni Di Sirio
 
@@ -14,12 +20,19 @@
     limitations under the License.
 */
 
+
+//---------------------------------------------------------------------------
+
 #include <avr/interrupt.h>
 #include <avr/power.h>
 #include <avr/wdt.h>
 #include "hal.h"
 #include "nil.h"
+#include "apps/scan/scanner.h"
 #include "matrix_def.h"
+
+
+//---------------------------------------------------------------------------
 
 /*
  * Thread 1.
@@ -87,18 +100,18 @@ int main(void) {
 
 
   // Matrix with layout from RAM:
-  DEFINE_MATRIX( matrix, matrix_layout, false );
-  rkas_init( &matrix );
+  DEFINE_SCANNER( scanner, matrix, false );
+  rkas_init( &scanner );
 
   // Matrix with layout from progmem:
-  DEFINE_MATRIX( matrix_P, matrix_layout_P, true );
-  rkas_init( &matrix_P );
+  DEFINE_SCANNER( scanner_P, matrix_P, true );
+  rkas_init( &scanner_P );
 
   // Matrix with layout from RAM, but loaded from EEPROM:
-  RkASMatrixLayout matrix_layout_E;
-  rkas_load_layout_from_eeprom( &matrix_layout_E, NULL );
-  DEFINE_MATRIX( matrix_E, matrix_layout_E, false );
-  rkas_init( &matrix_E );
+  RkASMatrix matrix_E;
+  rkas_load_from_eeprom( &matrix_E, NULL );
+  DEFINE_SCANNER( scanner_E, matrix_E, false );
+  rkas_init( &scanner_E );
 
 //  KBDMatrixScanner scanner;
 //  scanner_a( &scanner, matrix );
@@ -125,7 +138,7 @@ int main(void) {
 }
 
 
-/***************************************************************************/
+//===========================================================================
 
 
 /* vi: set et sts=2 sw=2 ts=2: */
