@@ -11,7 +11,7 @@
 #include "hal.h"
 #include "pal.h"
 
-#include "apps/scan/row_scanner_a.h"
+#include "apps/scan/row_scanners/a.h"
 
 
 //---------------------------------------------------------------------------

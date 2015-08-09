@@ -96,7 +96,7 @@ SRC = $(KERNSRC) \
 	  usb/lufa/KeyboardMouse.c \
 	  $(RTK_PATH)/apps/scan/matrix.c \
 	  $(RTK_PATH)/apps/scan/matrix_scanner.c \
-	  $(RTK_PATH)/apps/scan/row_scanner_a.c \
+	  $(RTK_PATH)/apps/scan/row_scanners/a.c \
 	  matrix_def.c \
       main.c
 

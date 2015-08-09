@@ -29,7 +29,7 @@
 #include "hal.h"
 #include "nil.h"
 #include "apps/scan/matrix_scanner.h"
-#include "apps/scan/row_scanner_a.h"
+#include "apps/scan/row_scanners/a.h"
 #include "matrix_def.h"
 
 
