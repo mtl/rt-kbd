@@ -70,7 +70,7 @@
   uint8_t state_latest[ state_size ]; \
   uint8_t state_bouncing[ state_size ]; \
 \
-  RkASScanner name = { \
+  RkASMatrixScanner name = { \
     .matrix = &matrix_, \
     .state = { \
       .reported = &state_reported, \
@@ -87,7 +87,7 @@
 /**
  * @brief   Keyboard matrix scanner data structure.
  */
-typedef struct rk_as_scanner {
+typedef struct rk_as_matrix_scanner {
 
   /**
    * @brief Keyboard matrix definition.
@@ -97,7 +97,7 @@ typedef struct rk_as_scanner {
   /**
    * @brief Row scan function.
    */
-  void (*scan_row)( struct rk_as_scanner*, uint8_t, uint8_t[] );
+  void (*scan_row)( struct rk_as_matrix_scanner*, uint8_t, uint8_t[] );
 
   /**
    * @brief Arrays of matrix state data.
@@ -115,13 +115,14 @@ typedef struct rk_as_scanner {
 
   /* End of the mandatory fields.*/
 
-} RkASScanner;
+} RkASMatrixScanner;
 
 
 //---------------------------------------------------------------------------
 // Function prototypes.
 
-void rkas_init( RkASScanner *, void (*scan_row)( RkASScanner*, uint8_t, uint8_t[] ) );
+void rkas_init( RkASMatrixScanner * );
+void rkas_print( RkASMatrixScanner * );
 
 
 //===========================================================================

@@ -5,22 +5,17 @@
  ***************************************************************************/
 
 #include <string.h>
-#include "apps/scan/scanner.h"
+#include "apps/scan/matrix_scanner.h"
 
 
 //---------------------------------------------------------------------------
 
 /**
- * @brief Initialize the scanner.
+ * @brief Initialize the matrix scanner.
  *
  * @param[in] self the scanner to initialize
- * @param[in] scan_row the row scanning function
  */
-void rkas_init(
-  RkASScanner * self,
-  void (*scan_row)( RkASScanner*, uint8_t, uint8_t[] )
-) {
-  self->scan_row = scan_row;
+void rkas_init( RkASMatrixScanner * self ) {
 
   // Initialize the matrix state arrays:
 
@@ -35,11 +30,20 @@ void rkas_init(
 
 
 /**
+ * @brief Print the current matrix state.
+ *
+ * @param[in] self the keyboard matrix scanner
+ */
+void rkas_print( RkASMatrixScanner * self ) {
+}
+
+
+/**
  * @brief Scan the matrix.
  *
  * @param[in] self the keyboard matrix scanner
  */
-static uint8_t rkas_scan( RkASScanner * self ) {
+static uint8_t rkas_scan( RkASMatrixScanner * self ) {
 
   uint8_t num_rows, num_cols;
 

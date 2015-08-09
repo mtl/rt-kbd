@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *  Keyboard matrix scanner A
+ *  Keyboard matrix row scanner A
  *
  ***************************************************************************/
 
@@ -11,17 +11,16 @@
 #include "hal.h"
 #include "pal.h"
 
-#include "apps/scan/scanner_a.h"
+#include "apps/scan/row_scanner_a.h"
 
 
 //---------------------------------------------------------------------------
 // Static function prototypes:
 
 static void get_pin( ioportid_t *, uint_fast8_t *, IOBus [], uint8_t, bool );
-static void init( RkASScannerA * );
-static void print( RkASScannerA * );
-static void select_row( RkASScannerA *, uint8_t );
-static void unselect_row( RkASScannerA *, uint8_t );
+static void scan_row( RkASMatrixScanner *, uint8_t, uint8_t[] );
+static void select_row( RkASMatrixScanner *, uint8_t );
+static void unselect_row( RkASMatrixScanner *, uint8_t );
 
 
 //---------------------------------------------------------------------------
@@ -33,7 +32,7 @@ static void unselect_row( RkASScannerA *, uint8_t );
  *
  * @param[in] arg       unused (type void *)
  */
-//THD_FUNCTION( fwIKScannerAF, arg ) {
+//THD_FUNCTION( fwIKScannerF, arg ) {
 //}
 
 
@@ -88,19 +87,21 @@ static void get_pin(
 /**
  * @brief Initialize the scanner.
  *
- * @param[in] self the keyboard matrix scanner
+ * @param[in] matrix_scanner the keyboard matrix scanner
  */
-static void rkas_init_a( RkASScanner * self ) {
+void rkas_init_a( RkASMatrixScanner * matrix_scanner ) {
+
+  matrix_scanner->scan_row = &scan_row;
 
   // To use PORTF, disable JTAG by writing JTD bit twice within four cycles:
   /*MCUCR |= (1<<JTD);*/
   /*MCUCR |= (1<<JTD);*/
     
 //  /* Initialize rows: */
-//  RkASMatrix * matrix = self->matrix;
+//  RkASMatrix * matrix = matrix_scanner->matrix;
 //  uint8_t num_rows = matrix->num_rows;
 //  for ( uint8_t row = 0; row < num_rows; row++ ) {
-//    unselect_row( self, row );
+//    unselect_row( matrix_scanner, row );
 //  }
 //
 //  /* Initialize columns: */
@@ -125,26 +126,19 @@ static void rkas_init_a( RkASScanner * self ) {
 
 }
 
-/**
- * @brief Print the current matrix state.
- *
- * @param[in] self the keyboard matrix scanner
- */
-static void print( RkASScannerA * self ) {
-}
 
 /**
  * @brief   Select a row to be scanned.
  * @details Output low (DDR:1, PORT:0) to select.
  *
- * @param[in] self the keyboard matrix scanner
+ * @param[in] matrix_scanner the keyboard matrix scanner
  * @param[in] row the number of the row to select
  *
  * @notapi
  */
-static void select_row( RkASScannerA * self, uint8_t row ) {
+static void select_row( RkASMatrixScanner * matrix_scanner, uint8_t row ) {
 
-//  RkASMatrix * matrix = self->matrix;
+//  RkASMatrix * matrix = matrix_scanner->matrix;
 //  uint_fast8_t offset;
 //  ioportid_t portid;
 //
@@ -156,7 +150,7 @@ static void select_row( RkASScannerA * self, uint8_t row ) {
 /**
  * @brief Get a row of matrix column data.
  *
- * @param[in] self the keyboard matrix scanner
+ * @param[in] matrix_scanner the keyboard matrix scanner
  * @param[in] row the number of the row to scan
  * @param[out] columns the column data
  *
@@ -165,17 +159,14 @@ static void select_row( RkASScannerA * self, uint8_t row ) {
  *
  * @return the row of data
  */
-void scan_row( RkASScanner * self, uint8_t row, uint8_t columns[] ) {
+static void scan_row( RkASMatrixScanner * matrix_scanner, uint8_t row, uint8_t columns[] ) {
 
-  RkASScannerA *self_a = (RkASScannerA*) self;
-
-
-//  RkASMatrix * matrix = self->matrix;
+//  RkASMatrix * matrix = matrix_scanner->matrix;
 //  uint_fast8_t offset;
 //  ioportid_t portid;
 //  bool use_pgm = matrix->progmem;
 //
-//  select_row( self, row );
+//  select_row( matrix_scanner, row );
 //  _delay_us( 30 );  // Wait for signals to stabilize.
 //
 //  uint8_t col_bit = 0;
@@ -196,36 +187,36 @@ void scan_row( RkASScanner * self, uint8_t row, uint8_t columns[] ) {
 //    col_byte |= palReadPad( portid, offset ) << col_bit++;
 //  }
 //
-//  unselect_row( self, row );
+//  unselect_row( matrix_scanner, row );
 }
 
 /**
  * @brief Get the scanner interface.
  *
- * @param[out] self the matrix scanner
+ * @param[out] matrix_scanner the matrix scanner
  * @param[in] matrix the key matrix
  */
-//void scanner_a( RkASScannerA * self, RkASMatrix * matrix ) {
+//void scanner_a( RkASMatrixScanner * matrix_scanner, RkASMatrix * matrix ) {
 //
-//  self->matrix = matrix;
-//  /*self->print = &print;*/
-//  /*self->scan = &scan;*/
+//  matrix_scanner->matrix = matrix;
+//  /*matrix_scanner->print = &print;*/
+//  /*matrix_scanner->scan = &scan;*/
 //
-//  init( self );
+//  init( matrix_scanner );
 //}
 
 /**
  * @brief   Unselect a row (to initialize or after scanning).
  * @details Hi-Z input (DDR:0, PORT:0) to unselect.
  *
- * @param[in] self the keyboard matrix scanner
+ * @param[in] matrix_scanner the keyboard matrix scanner
  * @param[in] row the number of the row to unselect
  *
  * @notapi
  */
-static void unselect_row( RkASScannerA * self, uint8_t row ) {
+static void unselect_row( RkASMatrixScanner * matrix_scanner, uint8_t row ) {
 
-//  RkASMatrix * matrix = self->matrix;
+//  RkASMatrix * matrix = matrix_scanner->matrix;
 //  uint_fast8_t offset;
 //  ioportid_t portid;
 //

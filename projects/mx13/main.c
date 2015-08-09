@@ -28,8 +28,8 @@
 #include <avr/wdt.h>
 #include "hal.h"
 #include "nil.h"
-#include "apps/scan/scanner.h"
-#include "apps/scan/scanner_a.h"
+#include "apps/scan/matrix_scanner.h"
+#include "apps/scan/row_scanner_a.h"
 #include "matrix_def.h"
 
 
@@ -102,17 +102,20 @@ int main(void) {
 
   // Matrix with layout from RAM:
   DEFINE_SCANNER( scanner, matrix, false );
-//  rkas_init( &scanner );
+  rkas_init( &scanner );
+  rkas_init_a( &scanner );
 
   // Matrix with layout from progmem:
   DEFINE_SCANNER( scanner_P, matrix_P, true );
-//  rkas_init( &scanner_P );
+  rkas_init( &scanner_P );
+  rkas_init_a( &scanner_P );
 
   // Matrix with layout from RAM, but loaded from EEPROM:
   RkASMatrix matrix_E;
   rkas_load_from_eeprom( &matrix_E, NULL );
   DEFINE_SCANNER( scanner_E, matrix_E, false );
-//  rkas_init( &scanner_E );
+  rkas_init( &scanner_E );
+  rkas_init_a( &scanner_E );
 
 //  KBDMatrixScanner scanner;
 //  scanner_a( &scanner, matrix );

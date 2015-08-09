@@ -1,16 +1,16 @@
 /****************************************************************************
  *
- *  Keyboard matrix scanner A
+ *  Keyboard matrix row scanner A
  *
  ***************************************************************************/
-#if !defined(__RK_AS_MATRIX_SCANNER_A__)
-#define __RK_AS_MATRIX_SCANNER_A__
+#if !defined(__RK_AS_ROW_SCANNER_A__)
+#define __RK_AS_ROW_SCANNER_A__
 
 //---------------------------------------------------------------------------
 // Includes.
 
 #include <stdint.h>
-#include "apps/scan/scanner.h"
+#include "apps/scan/matrix_scanner.h"
 
 //---------------------------------------------------------------------------
 // Macros.
@@ -25,16 +25,16 @@
 // Data structures.
 
 /**
- * @brief   Keyboard matrix scanner A data structure.
+ * @brief   Keyboard row scanner A data structure.
  */
-typedef struct rk_as_scanner_a {
-
-  /**
-   * @brief Keyboard matrix scanner (base).
-   */
-  RkASScanner super;
-
-} RkASScannerA;
+//typedef struct rk_as_row_scanner_a {
+//
+//  /**
+//   * @brief Keyboard matrix row scanner (base).
+//   */
+//  RkASScanner super;
+//
+//} RkASRowScannerA;
 
 
 
@@ -42,9 +42,8 @@ typedef struct rk_as_scanner_a {
 // Function rototypes.
 
 //void rkASScannerAF( void * );
-//void scanner_a( RkASScanner * );
 
-void scan_row( RkASScanner *, uint8_t, uint8_t[] );
+void rkas_init_a( RkASMatrixScanner * );
 
 
 //===========================================================================
