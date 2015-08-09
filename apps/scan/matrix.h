@@ -14,6 +14,19 @@
 
 
 //---------------------------------------------------------------------------
+// Macros.
+
+/* Pack 8 bits per byte.
+ * Add an extra byte for any extra bits.
+ */
+#define RKAS_MATRIX_BYTES_PER_ROW( num_cols ) \
+  (num_cols) / 8 + ( (num_cols) % 8 ? 1 : 0 )
+
+#define RKAS_MATRIX_STATE_SIZE( num_rows, num_cols ) \
+  (num_rows) * RKAS_MATRIX_BYTES_PER_ROW( (num_cols) )
+
+
+//---------------------------------------------------------------------------
 // Data structures.
 
 /**

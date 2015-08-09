@@ -52,12 +52,7 @@ uint16_t rkas_get_state_size(
 
   rkas_get_geometry( self, progmem, &num_rows, &num_cols );
 
-  /* Pack 8 bits per byte.
-   * Add an extra byte for any extra bits.
-   */
-  return (
-    num_rows * ( num_cols / 8 + ( num_cols % 8 ? 1 : 0 ) )
-  );
+  return RKAS_MATRIX_STATE_SIZE( num_rows, num_cols );
 }
 
 

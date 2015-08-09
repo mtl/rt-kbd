@@ -123,6 +123,7 @@ typedef struct rk_as_matrix_scanner {
 
 void rkas_init( RkASMatrixScanner * );
 void rkas_print( RkASMatrixScanner * );
+void rkas_scan( RkASMatrixScanner * );
 
 
 //===========================================================================

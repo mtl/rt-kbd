@@ -9,6 +9,12 @@
 
 
 //---------------------------------------------------------------------------
+// Static function prototypes.
+
+static void rkas_read_matrix( RkASMatrixScanner *, uint8_t, uint8_t );
+
+
+//---------------------------------------------------------------------------
 
 /**
  * @brief Initialize the matrix scanner.
@@ -44,11 +50,39 @@ void rkas_print( RkASMatrixScanner * self ) {
 
 
 /**
+ * @brief Scan the matrix once.
+ *
+ * @param[in] self the keyboard matrix scanner
+ * @param[in] num_rows the number of rows in the matrix
+ * @param[in] num_cols the number of cols in the matrix
+ */
+static void rkas_read_matrix(
+  RkASMatrixScanner * self,
+  uint8_t num_rows,
+  uint8_t num_cols
+) {
+
+  uint8_t bytes_per_row = RKAS_MATRIX_BYTES_PER_ROW( num_cols );
+  uint8_t offset = 0;
+
+  for ( uint8_t row = 0; row < num_rows; row++ ) {
+
+    self->scan_row(
+      self, row,
+      &(*self->state.latest)[ offset ]
+    );
+
+    offset += bytes_per_row;
+  }
+}
+
+
+/**
  * @brief Scan the matrix.
  *
  * @param[in] self the keyboard matrix scanner
  */
-static uint8_t rkas_scan( RkASMatrixScanner * self ) {
+void rkas_scan( RkASMatrixScanner * self ) {
 
   uint8_t num_rows, num_cols;
 
@@ -57,9 +91,20 @@ static uint8_t rkas_scan( RkASMatrixScanner * self ) {
     &num_rows, &num_cols
   );
 
-  for ( uint8_t row = 0; row < num_rows; row++ ) {
+  // Read the current state of the matrix:
+  rkas_read_matrix( self, num_rows, num_cols );
 
-//    self->scan_row( self, row, ... );
+  // Check for changes:
+  uint16_t state_size = RKAS_MATRIX_STATE_SIZE( num_rows, num_cols );
+  if (
+    memcmp( *self->state.bouncing, *self->state.latest, state_size )
+  ) {
+    // Bounce detected..
+    memcpy( *self->state.bouncing, *self->state.latest, state_size );
+    // reset timer/counter..
+  } else {
+    // check time/count
+    // if stable long enough, generate events
   }
 }
 
