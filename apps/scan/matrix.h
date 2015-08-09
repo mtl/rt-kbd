@@ -43,7 +43,7 @@ typedef struct rk_as_matrix {
 
 
 //---------------------------------------------------------------------------
-// Prototypes.
+// Function prototypes.
 
 void rkas_get_geometry( const RkASMatrix *, bool, uint8_t *, uint8_t * );
 uint16_t rkas_get_state_size( const RkASMatrix *, bool );

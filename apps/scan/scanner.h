@@ -85,7 +85,7 @@
 // Data structures.
 
 /**
- * @brief   Keyboard matrix data structure.
+ * @brief   Keyboard matrix scanner data structure.
  */
 typedef struct rk_as_scanner {
 
@@ -93,6 +93,11 @@ typedef struct rk_as_scanner {
    * @brief Keyboard matrix definition.
    */
   const RkASMatrix          *matrix;
+
+  /**
+   * @brief Row scan function.
+   */
+  void (*scan_row)( struct rk_as_scanner*, uint8_t, uint8_t[] );
 
   /**
    * @brief Arrays of matrix state data.
@@ -114,9 +119,9 @@ typedef struct rk_as_scanner {
 
 
 //---------------------------------------------------------------------------
-// Prototypes.
+// Function prototypes.
 
-void rkas_init( RkASScanner * );
+void rkas_init( RkASScanner *, void (*scan_row)( RkASScanner*, uint8_t, uint8_t[] ) );
 
 
 //===========================================================================
